@@ -1,7 +1,7 @@
 
 
 
-import 'package:untitled1/%20features/salon/domain/stylist.dart';
+import 'package:hairvana/%20features/salon/domain/stylist.dart';
 
 class Salon {
   final String name;

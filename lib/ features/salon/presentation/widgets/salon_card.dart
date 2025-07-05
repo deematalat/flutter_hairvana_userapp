@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../../booking/presentation/screens/booking_screen.dart';
-import '../../../home/data/fake_data/styles_items.dart';
 import '../../../home/presentation/domain/entities/style_item.dart';
 import '../../domain/salon.dart';
 import '../../domain/stylist.dart';
+import '../screens/salon_details_screen.dart';
+import '../../../booking/presentation/screens/booking_start_screen.dart';
 
 class SalonCard extends StatelessWidget {
   final Salon salon;
@@ -12,16 +12,10 @@ class SalonCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Stylist selectedStylist = salon.stylists.first;
-    final StyleItem selectedStyleItem = StyleItem(
-      name: 'Haircut',
-    imageUrl: 'assets/images/haircut.png',
-      trending: true, difficulty:'hard', tag: '' , rating: 4, type: 'cut',
-
-    );
-
+    final size = MediaQuery.of(context).size;
+    final isSmall = size.width < 400;
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      margin: EdgeInsets.symmetric(horizontal: isSmall ? 8 : 16, vertical: isSmall ? 6 : 10),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 3,
       child: Column(
@@ -32,7 +26,7 @@ class SalonCard extends StatelessWidget {
             borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
             child: Image.network(
               salon.imageUrl,
-              height: 160,
+              height: isSmall ? 110 : 160,
               width: double.infinity,
               fit: BoxFit.cover,
             ),
@@ -40,24 +34,36 @@ class SalonCard extends StatelessWidget {
 
           // Info
           Padding(
-            padding: const EdgeInsets.all(12),
+            padding: EdgeInsets.all(isSmall ? 8 : 12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(salon.name,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(salon.name,
+                      style: TextStyle(fontSize: isSmall ? 15 : 18, fontWeight: FontWeight.bold)),
+                ),
                 const SizedBox(height: 6),
 
                 // Rating and Distance
                 Row(
                   children: [
-                    Icon(Icons.star, color: Colors.amber[600], size: 18),
+                    Icon(Icons.star, color: Colors.amber[600], size: isSmall ? 15 : 18),
                     const SizedBox(width: 4),
-                    Text('${salon.rating} (${salon.reviews} reviews)'),
+                    Flexible(
+                      child: Text('${salon.rating} (${salon.reviews} reviews)',
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: isSmall ? 12 : 14)),
+                    ),
                     const Spacer(),
-                    Icon(Icons.location_on_outlined, size: 18, color: Colors.grey[600]),
+                    Icon(Icons.location_on_outlined, size: isSmall ? 15 : 18, color: Colors.grey[600]),
                     const SizedBox(width: 4),
-                    Text(salon.distance),
+                    Flexible(
+                      child: Text(salon.distance,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: isSmall ? 12 : 14)),
+                    ),
                   ],
                 ),
 
@@ -68,9 +74,9 @@ class SalonCard extends StatelessWidget {
                   spacing: 6,
                   children: salon.tags
                       .map((tag) => Chip(
-                    label: Text(tag),
-                    backgroundColor: const Color(0xFFf3f4f6),
-                  ))
+                            label: Text(tag, style: TextStyle(fontSize: isSmall ? 10 : 12)),
+                            backgroundColor: const Color(0xFFf3f4f6),
+                          ))
                       .toList(),
                 ),
 
@@ -83,28 +89,19 @@ class SalonCard extends StatelessWidget {
                     // Services
                     OutlinedButton.icon(
                       onPressed: () {
-                        // Show services dialog or screen
-                        showDialog(
-                          context: context,
-                          builder: (_) => AlertDialog(
-                            title: const Text('Services'),
-                            content: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text('- Haircut'),
-                                const Text('- Styling'),
-                                const Text('- Coloring'),
-                              ],
-                            ),
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => SalonDetailsScreen(salon: salon),
                           ),
                         );
                       },
-                      icon: const Icon(Icons.design_services_outlined),
-                      label: const Text('Services'),
+                      icon: Icon(Icons.design_services_outlined, size: isSmall ? 16 : 20),
+                      label: Text('Services', style: TextStyle(fontSize: isSmall ? 12 : 14)),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.black87,
                         side: const BorderSide(color: Colors.grey),
+                        padding: EdgeInsets.symmetric(horizontal: isSmall ? 8 : 16, vertical: isSmall ? 6 : 10),
                       ),
                     ),
 
@@ -114,11 +111,7 @@ class SalonCard extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => BookingScreen(
-                              salon: salon,
-                              stylist: selectedStylist,
-                              styleItem: selectedStyleItem,
-                            ),
+                            builder: (_) => BookingStartScreen(salon: salon),
                           ),
                         );
                       },
@@ -128,8 +121,9 @@ class SalonCard extends StatelessWidget {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
+                        padding: EdgeInsets.symmetric(horizontal: isSmall ? 8 : 16, vertical: isSmall ? 6 : 10),
                       ),
-                      child: const Text('Book'),
+                      child: Text('Book', style: TextStyle(fontSize: isSmall ? 12 : 14)),
                     ),
                   ],
                 ),

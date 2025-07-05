@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
-import '../../../../core/styles/text_styles.dart';
-
+import '../widgets/onboarding_page.dart';
+import '../widgets/onboarding_page_indicator.dart';
+import '../widgets/onboarding_next_button.dart';
+import '../widgets/onboarding_skip_button.dart';
 
 class OnboardingScreen extends StatefulWidget {
   final VoidCallback onFinish;
@@ -87,7 +88,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ),
                       );
                     },
-                    child: _OnboardingPage(
+                    child: OnboardingPage(
                       key: ValueKey(i),
                       icon: page.icon,
                       iconColor: page.iconColor,
@@ -99,83 +100,33 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 },
               ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(_pages.length, (i) => GestureDetector(
-                onTap: () {
-                  _controller.animateToPage(
-                    i,
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeInOut,
-                  );
-                },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 16),
-                  width: i == _currentPage ? 24 : 10,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: i == _currentPage ? const Color(0xFFa78bfa) : const Color(0xFFede9fe),
-                  ),
-                ),
-              )),
+            OnboardingPageIndicator(
+              pageCount: _pages.length,
+              currentPage: _currentPage,
+              onDotTap: (i) {
+                _controller.animateToPage(
+                  i,
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeInOut,
+                );
+              },
             ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: size.width * 0.08, vertical: 8),
-              child: MouseRegion(
-                onEnter: (_) => setState(() => _nextHover = true),
-                onExit: (_) => setState(() => _nextHover = false),
-                child: GestureDetector(
-                  onTap: _nextPage,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(vertical: size.height * 0.025),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(18),
-                      gradient: LinearGradient(
-                        colors: _nextHover
-                            ? [Color(0xFFa78bfa), Color(0xFFf472b6)]
-                            : [Color(0xFFa78bfa), Color(0xFFf472b6), Color(0xFFfb7185)],
-                      ),
-                      boxShadow: [
-                        if (_nextHover)
-                          BoxShadow(
-                            color: Colors.purple.withOpacity(0.18),
-                            blurRadius: 16,
-                            offset: const Offset(0, 6),
-                          ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          _currentPage == _pages.length - 1 ? 'Finish' : 'Next →',
-                          style: AppTextStyles.button(
-                            fontSize: size.width * 0.055 > 26 ? 26 : size.width * 0.055,
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+              child: OnboardingNextButton(
+                isLastPage: _currentPage == _pages.length - 1,
+                isHover: _nextHover,
+                onTap: _nextPage,
+                onHoverEnter: () => setState(() => _nextHover = true),
+                onHoverExit: () => setState(() => _nextHover = false),
+                fontSize: size.width * 0.055 > 26 ? 26 : size.width * 0.055,
               ),
             ),
             Padding(
               padding: EdgeInsets.only(bottom: size.height * 0.04, top: 8),
-              child: GestureDetector(
+              child: OnboardingSkipButton(
                 onTap: _skip,
-                child: Text(
-                  'Skip',
-                  style: AppTextStyles.button(
-                    color: const Color(0xFFa78bfa),
-                    fontSize: size.width * 0.045 > 20 ? 20 : size.width * 0.045,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
+                fontSize: size.width * 0.045 > 20 ? 20 : size.width * 0.045,
               ),
             ),
           ],
@@ -196,46 +147,4 @@ class _OnboardingPageData {
     required this.title,
     required this.subtitle,
   });
-}
-
-class _OnboardingPage extends StatelessWidget {
-  final IconData icon;
-  final Color iconColor;
-  final String title;
-  final String subtitle;
-  final Size size;
-  const _OnboardingPage({
-    Key? key,
-    required this.icon,
-    required this.iconColor,
-    required this.title,
-    required this.subtitle,
-    required this.size,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final iconSize = size.width * 0.18;
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        FaIcon(icon, size: iconSize.clamp(50, 100), color: iconColor),
-        SizedBox(height: size.height * 0.04),
-        Text(
-          title,
-          style: AppTextStyles.title(),
-          textAlign: TextAlign.center,
-        ),
-        SizedBox(height: size.height * 0.025),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: size.width * 0.08),
-          child: Text(
-            subtitle,
-            style: AppTextStyles.subtitle(),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ],
-    );
-  }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../data/repositories/booking_repository_impl.dart';
-import '../../domain/usecases/get_bookings.dart';
+import '../../../booking/data/repositories/booking_repository_impl.dart';
+import '../../../booking/domain/usecases/get_bookings.dart';
 
 class BookingsScreen extends StatelessWidget {
 
